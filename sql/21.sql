@@ -5,3 +5,11 @@
  * Use the first_value function.
  * The window will include both PARTITION BY and ORDER BY
  */
+SELECT title, customer_id, customer_name
+FROM ( SELECT DISTINCT title, first_value(customer_id) OVER w AS customer_id, first_value(first_name || ' ' || last_name) OVER w AS customer_name
+    FROM film
+    JOIN inventory USING (film_id)
+    JOIN rental USING (inventory_id)
+    JOIN customer USING (customer_id)
+    WINDOW w AS (PARTITION BY film_id ORDER BY rental_date DESC)) t
+ORDER BY replace(title, ' ', '') COLLATE "C";
